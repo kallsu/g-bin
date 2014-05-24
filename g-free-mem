@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+password="Sergio82"
+
+# Print memory status = BEFORE
+expect <<- DONE
+	set timeout -1
+
+	spawn su root -c free
+	match_max 100000
+
+	# Look for passwod prompt
+	expect "*?assword:*"
+  
+	# Send password aka $password
+  	send -- "$password\r"
+  
+  	expect eof
+DONE
+
+
+# Free memory
+expect <<- DONE
+        set timeout -1
+
+        spawn su root -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+        match_max 100000
+
+        # Look for passwod prompt
+        expect "*?assword:*"
+  
+        # Send password aka $password
+        send -- "$password\r"
+  
+        expect eof
+DONE
+
+# Print memory status - AFTER
+expect <<- DONE
+        set timeout -1
+
+        spawn su root -c free
+        match_max 100000
+
+        # Look for passwod prompt
+        expect "*?assword:*"
+  
+        # Send password aka $password
+        send -- "$password\r"
+  
+        expect eof
+DONE
+
+printf "\n\t Hey man, That's All Folks !!! \n"
+
+exit
