@@ -1,0 +1,90 @@
+#!/bin/bash 
+
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+# Written by Giorgio Desideri <giorgio.desideri@gmail.com>
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+
+MODE_RUN=0
+
+# Check Blanks
+if [ -z "$@" ];
+then
+        printf "Usage:\n"
+        printf "\t --mov_2_avi - convert .mov to .avi files\n"
+        printf "\t --mp4_2_mp3 - extract in mp3 format audio soundtrack of mp4 files\n"
+	printf "\n"
+        exit 0
+fi
+
+
+# check input params
+for param in "$@"
+do
+        # Resize command
+        if [ "$param" = "--mov_2_avi" ];
+        then
+                MODE_RUN=1
+                continue
+        fi
+
+        # Adjust command
+        if [ "$param" = "--mp4_2_mp3" ];
+        then
+                MODE_RUN=2
+                continue
+        fi
+        
+        if [ -z "$param" ];
+        then
+                WORKING_DIR=$param
+        fi
+done
+
+
+#
+# Run method
+#
+case $MODE_RUN in
+	1)
+		# Mov -> avi
+		printf "Convert MOV files to AVI\n"
+
+		for i in *.mov do
+
+			ffmpeg -i "$i" -q:v 3 "$i.avi"
+		done
+	;;
+
+	2)
+		# Mp4 -> Mp3
+		printf "Extract from MP4 files MP3 audio track\n"
+
+		for i in *.mp4; do
+    			
+			ffmpeg -i "$i" -acodec libmp3lame -ab 128k "$i.mp3"
+		done
+	
+	;;
+
+esac;
+
