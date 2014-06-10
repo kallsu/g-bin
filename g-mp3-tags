@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+# Written by Giorgio Desideri <giorgio.desideri@gmail.com>
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+
+#
+# Song file pattern:
+#
+# <ARTIST> - <SONG_NAME>.mp3
+#
+# prepare a file, named 'list' that contains all instruction for idv3 command
+#
+
+
+# Album name
+ALBUM=$1
+
+# Iterate on directory
+for file in *.mp3
+do
+	# artists's name
+	ARTIST=$( echo $file | awk -F"-" '{print $1}' | sed -e 's:^[ ]\+::' -e 's:[ ]\+$::' )
+
+	# song title
+	TITLE=$( echo $file | awk -F"-" '{print $2}' | sed -e 's:\.mp3::' -e 's:^[ ]\+::' -e 's:[ ]\+$::' )
+
+	# prepare command
+	echo "id3v2 -a \"${ARTIST}\" -t \"${TITLE}\" -A \"${ALBUM}\" \"$file\"" >> list
+done

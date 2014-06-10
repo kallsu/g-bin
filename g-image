@@ -1,0 +1,98 @@
+#!/bin/sh
+
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+# Written by Giorgio Desideri <giorgio.desideri@gmail.com>
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+
+MODE_RUN=0
+WORKING_DIR=""
+
+# Check Blanks
+if [ -z "$@" ];
+then
+	printf "Usage:\n"
+	printf "\t --resize - resize image\n"
+	printf "\t --adjust - adjust/balance image\n"
+	printf "\t --both - adjust/balance AND resize image\n\n"
+	exit 0
+fi
+
+
+# Input params
+for param in "$@"
+do
+	# Resize command
+	if [ "$param" = "--resize" ];
+	then
+		MODE_RUN=1
+		continue
+	fi
+
+	# Adjust command
+	if [ "$param" = "--adjust" ];
+        then
+                MODE_RUN=2
+		continue
+        fi
+
+	# Resize and Adjust command
+	if [ "$param" = "--both" ];
+        then
+                MODE_RUN=3
+		continue
+        fi
+
+	if [ -z "$param" ];
+	then
+		WORKING_DIR=$param
+	fi
+done
+
+# Execute Job
+for file in `ls $WORKING_DIR`
+do
+	# Normalize Filename
+	name=`echo $file | cut -f1 -d.`
+
+	# Execute job
+	case $MODE_RUN in
+		1)
+			printf "Resize images\n"
+			convert -verbose -geometry 1024x768 -quality 95 $file ${name}_resize.jpg
+		;;
+
+		2)
+			printf "Adjust images\n"
+			
+			# execute adjust
+			convert -verbose -auto-level $file ${name}_adjust.jpg
+		;;
+
+		3)
+			printf "Adjust and Resize images\n"
+			convert -verbose -auto-level -geometry 1024x768 $file ${name}_adjust.jpg
+		;;
+	esac;
+
+done
+
