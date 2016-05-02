@@ -1,0 +1,77 @@
+#!/bin/sh
+
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+# Written by Giorgio Desideri <giorgio.desideri@gmail.com>
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+
+# svn credentials
+svn_workspace = "Your svn workspace"
+svn_username = "svn username"
+svn_pwd = "svn pwd"
+
+# go in svn workspace or working directory
+cd $svn_workspace
+
+TIMESTAMP=`date | awk '{printf $6"-"$2"-"$3"_"$4"-"$5"\n"}'`
+MSG="Commit of $TIMESTAMP"
+
+# 
+# SVN Operations
+#
+
+# get status
+SVN_STATUS=`svn st`
+
+# add files
+add_files=`svn st | sed -n 's/^[A?] *\(.*\)/\1/p'`
+
+if [[ ! -z "$add_files" ]] 
+        then
+                svn --force --depth infinity add .
+fi
+
+# Deleted files
+del_files=`svn st | sed -n 's/^[!?] *\(.*\)/\1/p'`
+
+if [[ ! -z "$del_files" ]]
+        then
+                svn status | grep "^\!" | sed 's/^\! *//g' > /tmp/delete_files
+                svn delete --targets /tmp/delete_files
+fi
+
+SVN_STATUS_END=`svn st`
+
+# check status
+if [ -z "$SVN_STATUS_END" ] 
+then
+        # No commit message
+        MSG="No commit now."
+else
+        # commit message
+        MSG="$MSG.\r\nBefore:\r\n $SVN_STATUS \r\nAfter:\r\n $SVN_STATUS_END"
+
+        # merge commit message
+        svn commit --username $svn_username --password $svn_pwd -m "$MSG"
+fi
+
+exit 0

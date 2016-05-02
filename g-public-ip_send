@@ -1,0 +1,63 @@
+#!/bin/bash
+
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+# Written by Giorgio Desideri <giorgio.desideri@gmail.com>
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+#
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+
+# Get Public IP
+my_ip = `/usr/bin/dig +short myip.opendns.com @resolver1.opendns.com`
+
+# Send Email
+username="YOUR username@gmail.com BASE64 ASCII encoded"
+pwd="YOUR PASSWORD BASE64 ASCII encoded"
+
+
+FROM="MAIL FROM: username@gmail.com"
+SUBJECT="Subject"
+
+{
+        sleep 2
+        echo "HELO yo"
+        sleep 2
+        echo "AUTH LOGIN"
+        sleep 2
+        echo "$username"
+        sleep 2
+        echo "$pwd"
+        sleep 2
+        echo "$FROM"
+        sleep 2
+	# Repeat this piece or apply for block for the recipient that yu have
+        echo "RCPT TO: <giorgio.desider@gmail.com>"
+        sleep 2
+        echo "DATA"
+        sleep 2
+        echo "$SUBJECT"
+        echo ""
+        echo "$my_ip"
+        echo "."
+        echo ""
+        echo "quit"
+} | telnet-ssl -z ssl smtp.gmail.com 465
+
+exit 0
